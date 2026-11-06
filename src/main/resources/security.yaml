@@ -1,0 +1,5 @@
+security:
+  issuer: "PUCPR AuthServer"
+  secret: ${JWT_SECRET}
+  expire-hours: 48
+  admin-expire-hours: 1

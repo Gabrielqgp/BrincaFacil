@@ -1,0 +1,16 @@
+package br.pucpr.brincafacil.locacao.decoracoes
+
+import jakarta.persistence.*
+
+@Entity
+@Table(name = "decoracoes")
+class Decoracao(
+    @Id @GeneratedValue
+    val id: Long? = null,
+    @Column(nullable = false, length = 120)
+    var nome: String,
+    @Column(length = 500)
+    var descricao: String?,
+    @Column(nullable = false)
+    var ativo: Boolean = true
+)

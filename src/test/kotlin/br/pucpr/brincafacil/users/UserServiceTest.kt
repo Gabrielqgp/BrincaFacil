@@ -1,0 +1,45 @@
+package br.pucpr.brincafacil.users
+
+import br.pucpr.brincafacil.roles.RoleRepository
+import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+class UserServiceTest {
+    private val repository = mockk<UserRepository>()
+    private val roleRepository = mockk<RoleRepository>()
+
+    private val jwt = mockk<br.pucpr.brincafacil.security.JWT>()
+    private val passwordEncoder = mockk<org.springframework.security.crypto.password.PasswordEncoder>()
+    private val service = UserService(repository, roleRepository, jwt, passwordEncoder)
+
+    @BeforeEach
+    fun setup() {
+        clearAllMocks()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        checkUnnecessaryStub(repository, roleRepository)
+    }
+
+    @Test
+    fun `insert should save and return the saved user`() {
+        val user = oneUser(id = null)
+        val saved = oneUser(id = 1)
+        every { repository.findByEmail(user.email) } returns null
+        every { passwordEncoder.encode(user.password) } returns "hashed"
+        every { repository.save(user) } returns saved
+
+        val result = service.insert(user)
+
+        verify(exactly = 1) { repository.findByEmail(user.email) }
+        result shouldBe saved
+    }
+}
