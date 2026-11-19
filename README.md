@@ -1,9 +1,11 @@
 Gabriel Quadros Garcia Pimentel, Gustavo Iichiro Nagata, Thiago Christen Pereira Soares
 
-BrincaFácil
+BrincaFácil:
+
 O BrincaFácil é uma API para gerenciar o estoque de empresas que alugam brinquedos e kits de decoração para festas. A empresa cadastra cada unidade da empresa, vincula os itens às reservas dos clientes e evita que a mesma unidade seja reservada para eventos com datas sobrepostas.
 
-Funcionalidades
+Funcionalidades:
+
 - Estoque — cadastro, consulta, edição e exclusão de brinquedos e kits de festa. O catálogo permite buscar por nome, ordenar os resultados e marcar itens como ativos ou inativos.
 - Clientes — cadastro e consulta dos dados de contato de quem faz a locação.
 - Reservas — registro de um período de locação para um cliente, com opção de adicionar e remover brinquedos e kits. O cancelamento libera os itens para novas reservas no período.
