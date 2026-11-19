@@ -5,9 +5,11 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
-import org.springframework.stereotype.Repository
 
-@Repository
 interface BrinquedoRepository : JpaRepository<Brinquedo, Long> {
     fun findByNomeContainingIgnoreCase(nome: String, sort: Sort): List<Brinquedo>
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select item from Brinquedo item where item.id = :id")
+    fun findForUpdate(id: Long): Brinquedo?
 }

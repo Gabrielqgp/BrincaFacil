@@ -2,8 +2,12 @@ package br.pucpr.brincafacil.security
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -31,6 +35,18 @@ class SecurityConfig(
     private val jwtFilter: JwtTokenFilter
 ){
     @Bean
+    @Profile("dev")
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    fun h2ConsoleSecurity(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .securityMatcher(PathRequest.toH2Console())
+            .authorizeHttpRequests { it.anyRequest().permitAll() }
+            .csrf { it.disable() }
+            .headers { headers -> headers.frameOptions { it.sameOrigin() } }
+            .build()
+    }
+
+    @Bean
     fun filterChain(security: HttpSecurity): SecurityFilterChain = security
         .sessionManagement { it.sessionCreationPolicy(STATELESS)}
         .cors (Customizer.withDefaults())
@@ -38,8 +54,9 @@ class SecurityConfig(
         .headers { it.frameOptions { fo -> fo.disable() } }
         .authorizeHttpRequests { requests ->
             requests
-                .requestMatchers(HttpMethod.GET, "/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/health", "/brinquedos/**", "/decoracoes/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs").permitAll()
+                .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                 .requestMatchers("/h2/console/**").hasRole("ADMIN")
                 .anyRequest().authenticated()

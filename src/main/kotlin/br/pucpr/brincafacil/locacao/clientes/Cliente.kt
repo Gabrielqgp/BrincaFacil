@@ -19,5 +19,17 @@ class Cliente(
     val telefone: String?
 )
 
+interface ClienteRepository : JpaRepository<Cliente, Long>
 
+data class ClienteRequest(
+    @field:NotBlank @field:Size(max = 120)
+    val nome: String?,
+    @field:NotBlank @field:Email @field:Size(max = 254)
+    val email: String?,
+    @field:Size(max = 30)
+    val telefone: String? = null
+)
 
+data class ClienteResponse(val id: Long, val nome: String, val email: String, val telefone: String?) {
+    constructor(cliente: Cliente) : this(cliente.id!!, cliente.nome, cliente.email, cliente.telefone)
+}

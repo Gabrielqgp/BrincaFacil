@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.*
 class UserController(
     private val userService: UserService
 ) {
-    @SecurityRequirement(name = "jwt")
+    @SecurityRequirement(name ="jwt")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     fun list(
         @RequestParam sortDir: String?,
@@ -54,7 +55,8 @@ class UserController(
         ?.let { ResponseEntity.ok(it) }
         ?: ResponseEntity.noContent().build()
 
-    @SecurityRequirement(name = "jwt")
+    @SecurityRequirement(name ="jwt")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     fun getById(
         @Min(1) @PathVariable id: Long

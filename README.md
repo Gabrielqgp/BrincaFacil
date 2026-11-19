@@ -1,2 +1,0 @@
-# BrincaFacil
-Projeto Backend

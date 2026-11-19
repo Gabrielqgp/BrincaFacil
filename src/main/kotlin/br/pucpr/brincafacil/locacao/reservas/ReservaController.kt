@@ -1,12 +1,9 @@
 package br.pucpr.brincafacil.locacao.reservas
 
-import br.pucpr.brincafacil.locacao.brinquedos.BrinquedoService
-import br.pucpr.brincafacil.locacao.clientes.ClienteService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -15,44 +12,45 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/reservas")
 @SecurityRequirement(name = "jwt")
 @Validated
-class ReservaController(
-    private val service: ReservaService,
-    private val clienteService: ClienteService,
-    private val brinquedoService: BrinquedoService
-) {
+class ReservaController(private val service: ReservaService) {
     @GetMapping
-    fun list() = service.findAll()
-        .map { ReservaResponse(it) }
-        .let { ResponseEntity.ok(it) }
+    fun list() = service.list()
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
     @GetMapping("/{id}")
-    fun getById(@PathVariable @Min(1) id: Long) = service.findByIdOrNull(id)
-        ?.let { ReservaResponse(it) }
-        ?.let { ResponseEntity.ok(it) }
-        ?: ResponseEntity.notFound().build()
+    fun get(@PathVariable @Min(1) id: Long) = service.get(id)
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
     @PostMapping
-    fun insert(@Valid @RequestBody request: ReservaRequest) =
-        request.toReserva(
-            clienteService.get(request.clienteId!!),
-            request.brinquedoIds.distinct().map { brinquedoService.get(it) }
-        ).let { service.insert(it) }
-            .let { ReservaResponse(it) }
-            .let { ResponseEntity.status(HttpStatus.CREATED).body(it) }
+    @ResponseStatus(HttpStatus.CREATED)
+    fun insert(@Valid @RequestBody request: ReservaRequest) = service.insert(request)
 
-    @PutMapping("/{id}/brinquedos/{brinquedoId}")
-    fun addBrinquedo(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) brinquedoId: Long) =
-        service.addBrinquedo(id, brinquedoService.get(brinquedoId))
-            .let { ResponseEntity.noContent().build<Void>() }
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
+    @PutMapping("/{id}/brinquedos/{itemId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun adicionarBrinquedo(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) itemId: Long) =
+        service.adicionarBrinquedo(id, itemId)
 
-    @DeleteMapping("/{id}/brinquedos/{brinquedoId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    fun removeBrinquedo(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) brinquedoId: Long) =
-        service.removeBrinquedo(id, brinquedoId)
-            .let { ResponseEntity.noContent().build<Void>() }
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
+    @PutMapping("/{id}/decoracoes/{itemId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun adicionarDecoracao(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) itemId: Long) =
+        service.adicionarDecoracao(id, itemId)
+
+    @DeleteMapping("/{id}/brinquedos/{itemId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
+    fun removerBrinquedo(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) itemId: Long) =
+        service.removerBrinquedo(id, itemId)
+
+    @DeleteMapping("/{id}/decoracoes/{itemId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
+    fun removerDecoracao(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) itemId: Long) =
+        service.removerDecoracao(id, itemId)
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
     fun cancelar(@PathVariable @Min(1) id: Long) = service.cancelar(id)
-        .let { ResponseEntity.noContent().build<Void>() }
 }

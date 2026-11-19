@@ -1,43 +1,46 @@
 package br.pucpr.brincafacil.locacao.brinquedos
 
-import br.pucpr.brincafacil.locacao.naoEncontrado
-import br.pucpr.brincafacil.locacao.ordenarPorNome
+import br.pucpr.brincafacil.locacao.*
 import br.pucpr.brincafacil.locacao.reservas.ReservaRepository
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class BrinquedoService(
     private val repository: BrinquedoRepository,
-    private val reservaRepository: ReservaRepository
+    private val reservas: ReservaRepository
 ) {
     fun list(nome: String?, sortDir: String) = repository
         .findByNomeContainingIgnoreCase(nome.orEmpty().trim(), ordenarPorNome(sortDir))
+        .map { ItemResponse(it.id!!, it.nome, it.descricao, it.ativo) }
 
-    fun get(id: Long): Brinquedo =
-        repository.findByIdOrNull(id) ?: naoEncontrado("Brinquedo $id")
+    fun get(id: Long) = (repository.findByIdOrNull(id) ?: naoEncontrado("Brinquedo $id"))
+        .let { ItemResponse(it.id!!, it.nome, it.descricao, it.ativo) }
 
-    fun insert(item: Brinquedo): Brinquedo =
-        repository
-            .save(item)
-            .also { log.info("Brinquedo {} cadastrado", it.id) }
-
-    fun update(id: Long, dados: Brinquedo): Brinquedo {
-        val item = get(id)
-        item.nome = dados.nome
-        item.descricao = dados.descricao
-        item.ativo = dados.ativo
-        return repository.save(item).also { log.info("Brinquedo {} atualizado", id) }
+    @Transactional
+    fun insert(request: ItemRequest): ItemResponse {
+        val item = repository.save(Brinquedo(nome = request.nome!!.trim(), descricao = request.descricao, ativo = request.ativo))
+        log.info("Brinquedo {} cadastrado", item.id)
+        return ItemResponse(item.id!!, item.nome, item.descricao, item.ativo)
     }
 
+    @Transactional
+    fun update(id: Long, request: ItemRequest): ItemResponse {
+        val item = repository.findForUpdate(id) ?: naoEncontrado("Brinquedo $id")
+        item.nome = request.nome!!.trim()
+        item.descricao = request.descricao
+        item.ativo = request.ativo
+        log.info("Brinquedo {} atualizado", id)
+        return ItemResponse(id, item.nome, item.descricao, item.ativo)
+    }
+
+    @Transactional
     fun delete(id: Long) {
-        val item = get(id)
-        if (reservaRepository.existsByBrinquedos_Id(id)) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Brinquedo vinculado a uma reserva. Desative-o para manter o histórico.")
-        }
+        val item = repository.findForUpdate(id) ?: naoEncontrado("Brinquedo $id")
+        if (reservas.existsByBrinquedos_Id(id)) conflito("Item vinculado a uma reserva. Desative-o para preservar o histórico.")
         repository.delete(item)
         log.info("Brinquedo {} excluído", id)
     }

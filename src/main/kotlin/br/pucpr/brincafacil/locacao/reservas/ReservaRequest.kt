@@ -1,7 +1,5 @@
 package br.pucpr.brincafacil.locacao.reservas
 
-import br.pucpr.brincafacil.locacao.brinquedos.Brinquedo
-import br.pucpr.brincafacil.locacao.clientes.Cliente
 import jakarta.validation.constraints.FutureOrPresent
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotNull
@@ -14,12 +12,22 @@ data class ReservaRequest(
     val dataInicio: LocalDate?,
     @field:NotNull
     val dataFim: LocalDate?,
-    val brinquedoIds: List<Long> = emptyList()
+    val brinquedoIds: List<Long> = emptyList(),
+    val decoracaoIds: List<Long> = emptyList()
+)
+
+data class ReservaResponse(
+    val id: Long,
+    val clienteId: Long,
+    val dataInicio: LocalDate,
+    val dataFim: LocalDate,
+    val cancelada: Boolean,
+    val brinquedoIds: List<Long>,
+    val decoracaoIds: List<Long>
 ) {
-    fun toReserva(cliente: Cliente, brinquedos: List<Brinquedo>) = Reserva(
-        cliente = cliente,
-        dataInicio = dataInicio!!,
-        dataFim = dataFim!!,
-        brinquedos = brinquedos.toMutableSet()
+    constructor(reserva: Reserva) : this(
+        reserva.id!!, reserva.cliente.id!!, reserva.dataInicio, reserva.dataFim, reserva.cancelada,
+        reserva.brinquedos.map { it.id!! }.sorted(),
+        reserva.decoracoes.map { it.id!! }.sorted()
     )
 }

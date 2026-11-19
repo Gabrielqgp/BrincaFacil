@@ -8,5 +8,8 @@ import org.springframework.web.server.ResponseStatusException
 internal fun naoEncontrado(recurso: String): Nothing =
     throw ResponseStatusException(HttpStatus.NOT_FOUND, "$recurso não encontrado.")
 
+internal fun conflito(mensagem: String): Nothing =
+    throw ResponseStatusException(HttpStatus.CONFLICT, mensagem)
+
 internal fun ordenarPorNome(sortDir: String): Sort =
     Sort.by(Sort.Direction.valueOf(SortDir.findOrThrow(sortDir).name), "nome").and(Sort.by("id"))

@@ -3,10 +3,11 @@ package br.pucpr.brincafacil.users.requests
 import br.pucpr.brincafacil.users.User
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 
 data class UserRequest(
-    @field:NotBlank
+    @NotNull
     @Email
     var email: String?,
 
