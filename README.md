@@ -1,5 +1,7 @@
 Gabriel Quadros Garcia Pimentel, Gustavo Iichiro Nagata, Thiago Christen Pereira Soares
 
+Vídeo: https://youtu.be/3f9TrT5y8nQ
+
 # BrincaFácil
 
 O BrincaFácil é uma API para gerenciar o estoque de empresas que alugam brinquedos e kits de decoração para festas. A empresa cadastra cada unidade da empresa, vincula os itens às reservas dos clientes e evita que a mesma unidade seja reservada para eventos com datas sobrepostas.
