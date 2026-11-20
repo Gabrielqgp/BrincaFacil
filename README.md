@@ -1,6 +1,6 @@
 Gabriel Quadros Garcia Pimentel, Gustavo Iichiro Nagata, Thiago Christen Pereira Soares
 
-Vídeo: https://youtu.be/3f9TrT5y8nQ
+Vídeo: https://youtu.be/Yby1r18Uz9c
 
 # BrincaFácil
 
