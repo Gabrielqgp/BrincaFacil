@@ -19,8 +19,6 @@ class Cliente(
     val telefone: String?
 )
 
-interface ClienteRepository : JpaRepository<Cliente, Long>
-
 data class ClienteRequest(
     @field:NotBlank @field:Size(max = 120)
     val nome: String?,

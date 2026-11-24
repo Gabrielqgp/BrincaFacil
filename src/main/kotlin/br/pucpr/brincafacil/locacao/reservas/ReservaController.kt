@@ -39,7 +39,7 @@ class ReservaController(private val service: ReservaService) {
 
     @DeleteMapping("/{id}/brinquedos/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('ADMIN', 'PREMIUM')")
+    @PreAuthorize("hasRole('ADMIN')")
     fun removerBrinquedo(@PathVariable @Min(1) id: Long, @PathVariable @Min(1) itemId: Long) =
         service.removerBrinquedo(id, itemId)
 
